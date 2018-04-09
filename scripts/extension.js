@@ -1,10 +1,18 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener("DOMContentLoaded", () => {
     const defaultName = "player_stats";
     const input = document.getElementById( "filename" );
-    const saveButton = document.getElementById('save-button');
-    saveButton.addEventListener('click', function () {
-        chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-            chrome.tabs.sendMessage(tabs[0].id, {data: "data"}, function(response) {
+    const saveButton = document.getElementById("save-button");
+    saveButton.addEventListener("click", saveData);
+    input.addEventListener( "keypress", ( evt ) => {
+        const key = evt.witch || evt.keyCode;
+        if( key === 13 ) {
+            saveData();
+        }
+    } )
+
+    function saveData() {
+        chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+            chrome.tabs.sendMessage(tabs[0].id, {data: "data"}, (response) => {
                 const a = document.createElement("a");
                 const blob = new Blob([JSON.stringify( response.data )], {type: "application/json"});
                 const filename = `${ input.value || defaultName }.json`;
@@ -15,6 +23,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 a.click();
             });
         });
-    });
+    }
 });
 

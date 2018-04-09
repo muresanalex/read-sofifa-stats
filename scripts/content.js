@@ -24,7 +24,7 @@ chrome.runtime.onMessage.addListener( function(request, sender, sendResponse) {
     
     function saveStats( accumulator, category, categoryStats ) {
         category.forEach( ( item, index ) => {
-            accumulator[ item ] = parseInt( categoryStats.querySelectorAll( "span" )[ index ].innerHTML, 10 ) || defaultValue;
+            accumulator[ item ] = parseInt( categoryStats.querySelectorAll( "span.label" )[ index ].innerHTML, 10 ) || defaultValue;
         } );
     }
 
