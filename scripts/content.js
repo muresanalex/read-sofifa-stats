@@ -40,7 +40,35 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         "gkPositioning",
         "gkReflexes"
     ];
+    const monthsMap = {
+        Jan: 0,
+        Feb: 1,
+        Mar: 2,
+        Apr: 3,
+        May: 4,
+        Jun: 5,
+        Jul: 6,
+        Aug: 7,
+        Sep: 8,
+        Oct: 9,
+        Nov: 10,
+        Dec: 11
+    };
+
     const playerDetails = {};
+    const meta = document.querySelector(".meta");
+    const metaDetails = meta.lastChild.wholeText;
+    const detailsArray = metaDetails.split(" ");
+    const filteredArray = detailsArray.splice(2, 5);
+    let [month, day, year, height, weight] = filteredArray;
+    month = monthsMap[month.slice(1)];
+    day = day.split(",")[0];
+    year = year.slice(0, 4);
+    height = parseInt(height.split("cm")[0], 10);
+    weight = parseInt(weight.split("kg")[0], 10);
+    const dateOfBirth = `${year}-${month}-${day}`;
+
+    const position = meta.querySelectorAll("span")[0].innerHTML;
 
     const player = document.querySelector(".player");
     const firstColumn = player.querySelectorAll(".mb-2")[1];
@@ -88,6 +116,10 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     saveStats(playerDetails, mentality, mentalityStats);
     saveStats(playerDetails, defending, defendingStats);
     saveStats(playerDetails, goalkeeping, goalkeepingStats);
+    playerDetails.height = height;
+    playerDetails.weight = weight;
+    playerDetails.dateOfBirth = dateOfBirth;
+    playerDetails.position = position;
 
     console.log(playerDetails);
 
