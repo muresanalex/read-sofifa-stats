@@ -11,20 +11,28 @@ const getPosition = () => {
     return position;
 };
 
+buildDay = day => {
+    const fixedDay = day.split(",")[0];
+    if (fixedDay.length === 1) {
+        return `0${fixedDay}`;
+    }
+    return fixedDay;
+};
+
 const getMetaDetails = () => {
     const monthsMap = {
-        Jan: 0,
-        Feb: 1,
-        Mar: 2,
-        Apr: 3,
-        May: 4,
-        Jun: 5,
-        Jul: 6,
-        Aug: 7,
-        Sep: 8,
-        Oct: 9,
-        Nov: 10,
-        Dec: 11
+        Jan: "01",
+        Feb: "02",
+        Mar: "03",
+        Apr: "04",
+        May: "05",
+        Jun: "06",
+        Jul: "07",
+        Aug: "08",
+        Sep: "09",
+        Oct: "10",
+        Nov: "11",
+        Dec: "12"
     };
 
     const metaDetails = document.querySelector(".meta").lastChild.wholeText;
@@ -32,7 +40,7 @@ const getMetaDetails = () => {
     const filteredArray = detailsArray.splice(2, 5);
     let [month, day, year, height, weight] = filteredArray;
     month = monthsMap[month.slice(1)];
-    day = day.split(",")[0];
+    day = buildDay(day);
     year = year.slice(0, 4);
     height = parseInt(height.split("cm")[0], 10);
     weight = parseInt(weight.split("kg")[0], 10);
