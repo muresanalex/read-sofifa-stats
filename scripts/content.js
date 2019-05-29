@@ -1,7 +1,58 @@
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    const data = request.data || {};
-    const defaultValue = 50;
+const getPotential = () => {
+    const card = document.querySelector(".card-body.stats");
+    const column = card.querySelectorAll(".col-4")[1];
+    const potential = column.querySelector("span").innerText;
+    return parseInt(potential, 10);
+};
 
+const getPosition = () => {
+    const meta = document.querySelector(".meta");
+    const position = meta.querySelectorAll("span")[0].innerHTML;
+    return position;
+};
+
+const getMetaDetails = () => {
+    const monthsMap = {
+        Jan: 0,
+        Feb: 1,
+        Mar: 2,
+        Apr: 3,
+        May: 4,
+        Jun: 5,
+        Jul: 6,
+        Aug: 7,
+        Sep: 8,
+        Oct: 9,
+        Nov: 10,
+        Dec: 11
+    };
+
+    const metaDetails = document.querySelector(".meta").lastChild.wholeText;
+    const detailsArray = metaDetails.split(" ");
+    const filteredArray = detailsArray.splice(2, 5);
+    let [month, day, year, height, weight] = filteredArray;
+    month = monthsMap[month.slice(1)];
+    day = day.split(",")[0];
+    year = year.slice(0, 4);
+    height = parseInt(height.split("cm")[0], 10);
+    weight = parseInt(weight.split("kg")[0], 10);
+
+    return { dateOfBirth: `${year}-${month}-${day}`, height, weight };
+};
+
+const saveStats = (accumulator, category, categoryStats) => {
+    const defaultValue = 50;
+    category.forEach((item, index) => {
+        accumulator[item] = categoryStats.querySelectorAll("span.label")[index]
+            ? parseInt(
+                  categoryStats.querySelectorAll("span.label")[index].innerHTML,
+                  10
+              )
+            : defaultValue;
+    });
+};
+
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     const attacking = [
         "crossing",
         "finishing",
@@ -40,35 +91,13 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         "gkPositioning",
         "gkReflexes"
     ];
-    const monthsMap = {
-        Jan: 0,
-        Feb: 1,
-        Mar: 2,
-        Apr: 3,
-        May: 4,
-        Jun: 5,
-        Jul: 6,
-        Aug: 7,
-        Sep: 8,
-        Oct: 9,
-        Nov: 10,
-        Dec: 11
-    };
 
     const playerDetails = {};
-    const meta = document.querySelector(".meta");
-    const metaDetails = meta.lastChild.wholeText;
-    const detailsArray = metaDetails.split(" ");
-    const filteredArray = detailsArray.splice(2, 5);
-    let [month, day, year, height, weight] = filteredArray;
-    month = monthsMap[month.slice(1)];
-    day = day.split(",")[0];
-    year = year.slice(0, 4);
-    height = parseInt(height.split("cm")[0], 10);
-    weight = parseInt(weight.split("kg")[0], 10);
-    const dateOfBirth = `${year}-${month}-${day}`;
-
-    const position = meta.querySelectorAll("span")[0].innerHTML;
+    const potential = getPotential();
+    const position = getPosition();
+    const height = getMetaDetails().height;
+    const weight = getMetaDetails().weight;
+    const dateOfBirth = getMetaDetails().dateOfBirth;
 
     const player = document.querySelector(".player");
     const firstColumn = player.querySelectorAll(".mb-2")[1];
@@ -95,20 +124,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         .querySelectorAll(".column")[2]
         .querySelector("ul");
 
-    function saveStats(accumulator, category, categoryStats) {
-        category.forEach((item, index) => {
-            accumulator[item] = categoryStats.querySelectorAll("span.label")[
-                index
-            ]
-                ? parseInt(
-                      categoryStats.querySelectorAll("span.label")[index]
-                          .innerHTML,
-                      10
-                  )
-                : defaultValue;
-        });
-    }
-
     saveStats(playerDetails, attacking, attackingStats);
     saveStats(playerDetails, skill, skillStats);
     saveStats(playerDetails, movement, movementStats);
@@ -120,6 +135,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     playerDetails.weight = weight;
     playerDetails.dateOfBirth = dateOfBirth;
     playerDetails.position = position;
+    playerDetails.potential = potential;
 
     console.log(playerDetails);
 
